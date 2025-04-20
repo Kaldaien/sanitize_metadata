@@ -8,8 +8,15 @@
 #pragma comment (lib, "dxgi.lib")
 #pragma comment (lib, "dxguid.lib")
 
-int main()
+int main (int argc, void** argv)
 {
+  float max_cll = 0.0f;
+
+  if (argc == 2)
+  {
+    max_cll = atof ((const char *)(argv [1]));
+  }
+
   CComPtr <IDXGIFactory>                         pFactory;
   CreateDXGIFactory (IID_IDXGIFactory, (void **)&pFactory.p);
 
@@ -76,15 +83,20 @@ int main()
                 pSwapChain4 (pSwapChain);
             if (pSwapChain4 != nullptr)
             {
+              if (max_cll != 0.0f)
+              {
+                outDesc1.MaxLuminance = max_cll;
+              }
+
               DXGI_HDR_METADATA_HDR10
                 metadata                           = { };
                 metadata.MinMasteringLuminance     =  0;
                 metadata.MaxMasteringLuminance     =
-                  static_cast <UINT>   (outDesc1.MaxLuminance);
+                  static_cast <UINT>   (outDesc1.MaxLuminance * 10000);
                 metadata.MaxFrameAverageLightLevel =
-                  static_cast <UINT16> (outDesc1.MaxLuminance);
+                  static_cast <UINT16> (outDesc1.MaxLuminance * 10000);
                 metadata.MaxContentLightLevel      =
-                  static_cast <UINT16> (outDesc1.MaxLuminance);
+                  static_cast <UINT16> (outDesc1.MaxLuminance * 10000);
                 metadata.WhitePoint   [0]          =
                   static_cast <UINT16> (outDesc1.WhitePoint   [0] * 50000.0F);
                 metadata.WhitePoint   [1]          =
