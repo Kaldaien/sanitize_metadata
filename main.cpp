@@ -59,16 +59,18 @@ int main (int argc, void** argv)
             );
 
           DXGI_SWAP_CHAIN_DESC
-            swapDesc                   = { };
-            swapDesc.BufferDesc.Width  = Width;
-            swapDesc.BufferDesc.Height = Height;
-            swapDesc.BufferDesc.Format = DXGI_FORMAT_R10G10B10A2_UNORM;
-            swapDesc.BufferCount       = 3;
-            swapDesc.Windowed          = TRUE;
-            swapDesc.OutputWindow      = hWnd;
-            swapDesc.SampleDesc        = { 1, 0 };
-            swapDesc.SwapEffect        = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
-            swapDesc.BufferUsage       = DXGI_USAGE_BACK_BUFFER;
+            swapDesc                        = { };
+            swapDesc.BufferDesc.Width       = Width;
+            swapDesc.BufferDesc.Height      = Height;
+            swapDesc.BufferDesc.Format      = DXGI_FORMAT_R10G10B10A2_UNORM;
+            swapDesc.BufferDesc.RefreshRate = { 0, 0 };
+            swapDesc.BufferCount            = 3;
+            swapDesc.Windowed               = TRUE;
+            swapDesc.OutputWindow           = hWnd;
+            swapDesc.SampleDesc             = { 1, 0 };
+            swapDesc.SwapEffect             = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
+            swapDesc.BufferUsage            = DXGI_USAGE_BACK_BUFFER;
+            swapDesc.Flags                  = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 
           CComPtr <IDXGISwapChain> pSwapChain;
 
@@ -117,6 +119,30 @@ int main (int argc, void** argv)
               pSwapChain4->SetColorSpace1 (
                 DXGI_COLOR_SPACE_RGB_FULL_G2084_NONE_P2020
               );
+
+              if ( SUCCEEDED (
+                     pSwapChain4->SetFullscreenState (TRUE, nullptr))
+                 )
+              {
+                // Ensure that the display mode is changed
+                DXGI_MODE_DESC
+                  modeDesc        = {   };
+                  modeDesc.Width  = Width;
+                  modeDesc.Height = Height;
+                  modeDesc.Format = DXGI_FORMAT_R10G10B10A2_UNORM;
+
+                pOutput6->FindClosestMatchingMode (&modeDesc,
+                                                   &modeDesc, nullptr);
+                                                    modeDesc.RefreshRate =
+                                                  { modeDesc.RefreshRate.Numerator/3,
+                                                    modeDesc.RefreshRate.Denominator };
+                pOutput6->FindClosestMatchingMode (&modeDesc,
+                                                    &modeDesc, nullptr);
+                pSwapChain4->ResizeTarget         (&modeDesc);
+
+                Sleep                (  25);
+                pSwapChain4->Present (1, 0);
+              }
 
               if ( SUCCEEDED (
                      pSwapChain4->SetHDRMetaData (
